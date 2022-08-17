@@ -131,6 +131,16 @@ delimiter $$
 create procedure create_order(in pUserId int, in pAddressOverride varchar(100), in pCourierId int, in pDeliveryType int,
                               out pStatus bool, out pMsg varchar(255))
 begin
-    
+    declare vDeliveryAddress varchar(100) default null;
+    set pStatus = false;
+
+    if pAddressOverride is null then -- use default delivery address
+        select address into vDeliveryAddress from user where id = pUserId;
+    end if;
+
+    insert into `order` (user_id, order_payment_id, order_address, courier_id, delivery_type_id)
+    VALUES (pUserId, NULL, vDeliveryAddress, pCourierId, pDeliveryType);
+
+    set pStatus = true;
 end$$
 delimiter ;
