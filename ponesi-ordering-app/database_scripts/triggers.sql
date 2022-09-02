@@ -21,17 +21,18 @@ begin
 end$$
 delimiter ;
 
-delimiter $$
-create trigger request_for_feedback
-    after insert
-    on order_has_order_status
-    for each row
-begin
-    if new.order_status_id = (select id from order_status where status = 'Delivered') then
-        insert into review_request (order_id) values (new.order_id);
-    end if;
-end$$
-delimiter ;
+# Deleted the, rather useless, "review_request" table, this is useless now.
+# delimiter $$
+# create trigger request_for_feedback
+#     after insert
+#     on order_has_order_status
+#     for each row
+# begin
+#     if new.order_status_id = (select id from order_status where status = 'Delivered') then
+#         insert into review_request (order_id) values (new.order_id);
+#     end if;
+# end$$
+# delimiter ;
 
 
 delimiter $$

@@ -14,12 +14,32 @@ from item it
          join order_item oi on it.id = oi.item_id
 group by oi.item_id;
 
+
+# select distinct r.id, r.options_shown, r.options_chosen, r.order_id, o.id, ri.restaurant_id, ri.restauarnt_name
+# from review r
+#          join `order` o on r.order_id = o.id
+#          join order_item oi on o.id = oi.order_id
+#          join (
+#     select i.id as item_id, r2.id as restaurant_id, r2.name as restauarnt_name
+#     from item i
+#              join restaurant r2 on i.restaurant_id = r2.id
+# ) as ri on oi.item_id = ri.item_id
+# ;
+
 create or replace view restaurant_reviews as
-select re.options_shown, re.options_chosen, r.name
-from review re, restaurant r
-where (re.order_id, r.id) in (select distinct `order`.id, r.id
-                      from `order`
-                               join order_item oi on `order`.id = oi.order_id
-                               join item i on oi.item_id = i.id
-                               join restaurant r on i.restaurant_id = r.id
-                      );
+select distinct r.id                                     as review_id,
+                r.options_shown,
+                r.options_chosen,
+                (r.options_chosen * 2 > r.options_shown) as is_positive,
+                r.order_id,
+                ri.restaurant_id,
+                ri.restauarnt_name
+from review r
+         join `order` o on r.order_id = o.id
+         join order_item oi on o.id = oi.order_id
+         join (
+            select i.id as item_id, r2.id as restaurant_id, r2.name as restauarnt_name
+            from item i
+            join restaurant r2 on i.restaurant_id = r2.id
+        ) as ri on oi.item_id = ri.item_id
+;

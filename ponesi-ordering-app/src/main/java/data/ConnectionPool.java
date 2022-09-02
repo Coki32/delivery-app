@@ -1,6 +1,8 @@
 package data;
 
 
+import util.Logger;
+
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -77,6 +79,7 @@ public class ConnectionPool {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Logger.log(jdbcURL,this);
     }
 
     public synchronized Connection checkOut() throws SQLException {
@@ -99,6 +102,7 @@ public class ConnectionPool {
                 }
             }
         }
+        Logger.log("Connection taken out!",this);
         return conn;
     }
 
@@ -107,6 +111,7 @@ public class ConnectionPool {
             return;
         if (usedConnections.remove(conn)) {
             freeConnections.add(conn);
+            Logger.log("Connection returned out!",this);
             while (freeConnections.size() > maxIdleConnections) {
                 int lastOne = freeConnections.size() - 1;
                 Connection c = freeConnections.remove(lastOne);

@@ -1,10 +1,9 @@
 package entity;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 
-public class Restaurant extends BaseEntity {
+public class Restaurant {
 
     public static final String TABLE_NAME = "restaurant";
 
@@ -15,30 +14,25 @@ public class Restaurant extends BaseEntity {
     private boolean hasTakeout;
     private boolean acceptingOrders;
 
+    private List<String> categories;
 
-    public Restaurant(int id, String name, String waitTime, String address, boolean hasTakeout, boolean acceptingOrders) {
+
+    public Restaurant(int id, String name, String waitTime, String address, boolean hasTakeout, boolean acceptingOrders, List<String> categories) {
         this.id = id;
         this.name = name;
         this.waitTime = waitTime;
         this.address = address;
         this.hasTakeout = hasTakeout;
         this.acceptingOrders = acceptingOrders;
-        registerFields();
+        this.categories = categories;
     }
 
-
-    public Restaurant(ResultSet rs) throws SQLException {
-        registerFields();
-        this.readFromResultSet(rs);
+    public List<String> getCategories() {
+        return categories;
     }
 
-    private void registerFields() {
-        this.registerField("id", new FieldSpec(1, rs -> this.setId(rs.getInt("id"))));
-        this.registerField("name", new FieldSpec(2, rs -> this.setName(rs.getString("name"))));
-        this.registerField("wait_time", new FieldSpec(3, rs -> this.setWaitTime(rs.getString("wait_time"))));
-        this.registerField("address", new FieldSpec(4, rs -> this.setAddress(rs.getString("address"))));
-        this.registerField("has_takeout", new FieldSpec(5, rs -> this.setHasTakeout(rs.getBoolean("has_takeout"))));
-        this.registerField("accepting_orders", new FieldSpec(6, rs -> this.setAcceptingOrders(rs.getBoolean("accepting_orders"))));
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 
     @Override
@@ -50,6 +44,7 @@ public class Restaurant extends BaseEntity {
                 ", address='" + address + '\'' +
                 ", hasTakeout=" + hasTakeout +
                 ", acceptingOrders=" + acceptingOrders +
+                ", categories= " + categories.toString() +
                 '}';
     }
 
@@ -114,8 +109,4 @@ public class Restaurant extends BaseEntity {
         this.acceptingOrders = acceptingOrders;
     }
 
-    @Override
-    public String getTableName() {
-        return TABLE_NAME;
-    }
 }
