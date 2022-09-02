@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class ConnectionPool {
 
@@ -55,11 +54,11 @@ public class ConnectionPool {
         }
     }
 
-    private void readConfiguration()  {
+    private void readConfiguration() {
         ResourceBundle bundle = null;
-        try{
+        try {
             bundle = new PropertyResourceBundle(BUNDLE_NAME.openStream());
-        }catch (IOException ex){
+        } catch (IOException ex) {
             System.err.println("No configuration specified!");
             System.exit(1);
         }
@@ -79,7 +78,7 @@ public class ConnectionPool {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Logger.log(jdbcURL,this);
+        Logger.log(jdbcURL, this);
     }
 
     public synchronized Connection checkOut() throws SQLException {
@@ -102,7 +101,7 @@ public class ConnectionPool {
                 }
             }
         }
-        Logger.log("Connection taken out!",this);
+        Logger.log("Connection taken out!", this);
         return conn;
     }
 
@@ -111,7 +110,7 @@ public class ConnectionPool {
             return;
         if (usedConnections.remove(conn)) {
             freeConnections.add(conn);
-            Logger.log("Connection returned out!",this);
+            Logger.log("Connection returned out!", this);
             while (freeConnections.size() > maxIdleConnections) {
                 int lastOne = freeConnections.size() - 1;
                 Connection c = freeConnections.remove(lastOne);

@@ -1,6 +1,4 @@
-import data.ConnectionPool;
 import data.ItemRepository;
-import data.RestaurantRepository;
 
 import java.sql.SQLException;
 

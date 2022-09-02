@@ -1,7 +1,6 @@
 package data;
 
 import data.base.GenerousRepository;
-import data.base.PossessiveRepository;
 import entity.Restaurant;
 
 import java.sql.SQLException;

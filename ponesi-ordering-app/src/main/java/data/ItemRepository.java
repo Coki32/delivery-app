@@ -5,7 +5,6 @@ import entity.Item;
 import entity.ItemExtra;
 import entity.ItemExtraGroup;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
