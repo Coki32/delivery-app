@@ -2,10 +2,7 @@ import com.formdev.flatlaf.FlatIntelliJLaf;
 import components.ItemSquare;
 import components.LockableJPanel;
 import components.SelectBox;
-import data.ItemRepository;
-import data.RestaurantRepository;
-import data.UserRepository;
-import entity.Item;
+import controller.MainController;
 import entity.Restaurant;
 
 import javax.swing.*;
@@ -15,11 +12,7 @@ import java.sql.SQLException;
 
 public class Main extends JFrame {
 
-    private UserRepository users = new UserRepository();
-    private RestaurantRepository restaurants = new RestaurantRepository();
-    private ItemRepository items = new ItemRepository();
-
-    private Restaurant selectedRestaurant = null;
+    private MainController mc = new MainController();
     JLabel koSi = new JLabel("Nisi niko jos");
 
     private JScrollPane itemPane = null;
@@ -39,7 +32,7 @@ public class Main extends JFrame {
 
         this.add(top, BorderLayout.PAGE_START);
 
-        this.displayItems(loadItems());
+        this.displayItems();
 
         this.setMaximumSize(new Dimension(500, 480));
         this.pack();
@@ -49,19 +42,14 @@ public class Main extends JFrame {
     }
 
     private void selectRestaurant(Restaurant r) {
-        this.selectedRestaurant = r;
-        try {
-            displayItems(loadItems());
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error loading items!", JOptionPane.ERROR_MESSAGE);
-        }
+        mc.selectRestaurant(r);
+        displayItems();
     }
 
-    private void displayItems(java.util.List<Item> currentItems) {
+    private void displayItems() {
 
         var itemHolder = new JPanel();
-        currentItems.forEach(i -> itemHolder.add(new ItemSquare(i)));
+        mc.getItems().forEach(i -> itemHolder.add(new ItemSquare(i)));
         itemHolder.setPreferredSize(new Dimension(300, 10000));
 
         var jsp = new JScrollPane(itemHolder);
@@ -76,13 +64,9 @@ public class Main extends JFrame {
         itemPane = jsp;
     }
 
-    private java.util.List<Item> loadItems() throws SQLException {
-        if (selectedRestaurant == null) return this.items.findAll();
-        else return this.items.findAllByRestaurant(selectedRestaurant);
-    }
 
     private JPanel createUserSelector() throws SQLException {
-        var sbox = new SelectBox<>("Choose a user", users.findAll(), u -> u.getUsername() + " - " + u.getName());
+        var sbox = new SelectBox<>("Choose a user", mc.getUsers(), u -> u.getUsername() + " - " + u.getName());
 
         sbox.addItemSelectedListener(u -> {
             koSi.setText(u.getUsername());
@@ -94,8 +78,8 @@ public class Main extends JFrame {
         return wrapper;
     }
 
-    private LockableJPanel<SelectBox<Restaurant>> createRestaurantSelector() throws SQLException {
-        var sbox = new SelectBox<>("Choose a restaurant", restaurants.findAll(), Restaurant::getName);
+    private JPanel createRestaurantSelector() throws SQLException {
+        var sbox = new SelectBox<>("Choose a restaurant", mc.getRestaurants(), Restaurant::getName);
         sbox.addItemSelectedListener(this::selectRestaurant);
         return new LockableJPanel<>(sbox, "Select a restaurant", true, box -> {
             selectRestaurant(null);
