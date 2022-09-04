@@ -10,8 +10,7 @@ public class Item {
     private double price;
     private String kind;
     private List<ItemExtra> extras;
-
-
+    
     private Restaurant restaurant;
 
     public Item(int id, String name, String description, double price, String kind, List<ItemExtra> extras, Restaurant restaurant) {

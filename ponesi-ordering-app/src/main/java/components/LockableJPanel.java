@@ -11,24 +11,26 @@ public class LockableJPanel<T extends JPanel> extends JPanel {
 
     private boolean isLocked = true;
     private final T child;
+    private JCheckBox cb;
+    private Consumer<T> onDisable;
+    private Consumer<T> onEnable;
 
-    public LockableJPanel(T child, String label, Consumer<T> onDisable, Consumer<T> onEnable) {
+    public LockableJPanel(T child, String label, boolean locked, Consumer<T> onDisable, Consumer<T> onEnable) {
+        this.onDisable = onDisable;
+        this.onEnable = onEnable;
+
         this.setLayout(new BorderLayout(5, 5));
         this.setBorder(new TitledBorder(new LineBorder(Color.BLACK), label));
 
-        var cb = new JCheckBox("Enabled", isLocked);
+        cb = new JCheckBox("Enabled", !locked);
         cb.addItemListener(itemEvent -> {
             var newIsLocked = itemEvent.getStateChange() == ItemEvent.DESELECTED;
             this.setIsLocked(newIsLocked);
-            if (newIsLocked)
-                onDisable.accept(child);
-            else
-                onEnable.accept(child);
-
         });
         this.child = child;
         this.add(cb, BorderLayout.PAGE_START);
         this.add(child, BorderLayout.CENTER);
+        this.setIsLocked(locked);
     }
 
     //just in case
@@ -47,5 +49,9 @@ public class LockableJPanel<T extends JPanel> extends JPanel {
         for (var c : child.getComponents()) {
             c.setEnabled(!locked);
         }
+        if (isLocked)
+            onDisable.accept(child);
+        else
+            onEnable.accept(child);
     }
 }

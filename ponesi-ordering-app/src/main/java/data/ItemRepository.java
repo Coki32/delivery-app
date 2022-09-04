@@ -4,6 +4,7 @@ import data.base.PossessiveRepository;
 import entity.Item;
 import entity.ItemExtra;
 import entity.ItemExtraGroup;
+import entity.Restaurant;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -74,6 +75,27 @@ public class ItemRepository extends PossessiveRepository {
         String query = "select i.id as item_id, i.name as item_name, description, price, ik.name as kind from item i join item_kind ik on i.item_kind_id = ik.id";
 
         try (var ps = conn.prepareStatement(query)) {
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Item it = new Item(rs.getInt("item_id"), rs.getString("item_name"), rs.getString("description"), rs.getDouble("price"), rs.getString("kind"), null, null);
+                    it.setExtras(loadItemExtras(it));
+                    result.add(it);
+                }
+            }
+        }
+
+        this.returnConnection(conn);
+        return result;
+    }
+
+    public List<Item> findAllByRestaurant(Restaurant r) throws SQLException {
+        var conn = this.getConnection();
+        var result = new ArrayList<Item>();
+
+        String query = "select i.id as item_id, i.name as item_name, description, price, ik.name as kind from item i join item_kind ik on i.item_kind_id = ik.id where i.restaurant_id=?";
+
+        try (var ps = conn.prepareStatement(query)) {
+            ps.setInt(1, r.getId());
             try (var rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Item it = new Item(rs.getInt("item_id"), rs.getString("item_name"), rs.getString("description"), rs.getDouble("price"), rs.getString("kind"), null, null);
