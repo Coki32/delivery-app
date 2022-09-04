@@ -1,6 +1,7 @@
 use ponesi;
 
 delimiter $$
+drop trigger verify_same_restaurant;
 create trigger verify_same_restaurant
     before insert
     on order_item
@@ -36,6 +37,7 @@ delimiter ;
 
 
 delimiter $$
+drop trigger ordered_extra_belongs_to_item;
 create trigger ordered_extra_belongs_to_item
     before insert
     on order_item_has_item_extra
@@ -55,6 +57,7 @@ end$$
 delimiter ;
 
 delimiter $$
+drop trigger ordered_extra_upper_limit;
 create trigger ordered_extra_upper_limit
     before update
     on order_item_has_item_extra

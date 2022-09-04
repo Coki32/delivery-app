@@ -1,6 +1,6 @@
 package data;
 
-import data.base.GenerousRepository;
+import data.base.PossessiveRepository;
 import entity.Restaurant;
 
 import java.sql.SQLException;
@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Pretvori sve repositry-je u singletone
+ * TODO: Pretvori sve repositry-je u singletone
  */
-public class RestaurantRepository extends GenerousRepository {
+public class RestaurantRepository extends PossessiveRepository {
 
 
     public RestaurantRepository() {

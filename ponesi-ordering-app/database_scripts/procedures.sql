@@ -128,18 +128,22 @@ end$$
 delimiter ;
 
 delimiter $$
-create procedure create_order(in pUserId int, in pAddressOverride varchar(100), in pCourierId int, in pDeliveryType int,
+create procedure create_order(in pUserId int, in pAddressOverride varchar(100), in pDeliveryType int,
                               out pStatus bool, out pMsg varchar(255))
 begin
     declare vDeliveryAddress varchar(100) default null;
+    declare vCourierId int;
     set pStatus = false;
 
     if pAddressOverride is null then -- use default delivery address
         select address into vDeliveryAddress from user where id = pUserId;
     end if;
 
+    select id into vCourierId from courier order by rand() limit 1;
+
+
     insert into `order` (user_id, order_payment_id, order_address, courier_id, delivery_type_id)
-    VALUES (pUserId, NULL, vDeliveryAddress, pCourierId, pDeliveryType);
+    VALUES (pUserId, NULL, vDeliveryAddress, vCourierId, pDeliveryType);
 
     set pStatus = true;
 end$$
