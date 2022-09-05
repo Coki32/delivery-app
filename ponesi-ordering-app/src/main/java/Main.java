@@ -1,8 +1,10 @@
 import com.formdev.flatlaf.FlatDarculaLaf;
+import components.CurrentOrderPanel;
 import components.ItemFiltersBar;
 import components.ItemSquare;
 import controllers.MainController;
 import controllers.OrderController;
+import data.UserRepository;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,14 +19,20 @@ public class Main extends JFrame {
     JLabel koSi = new JLabel("Nisi niko jos");
 
     private JScrollPane itemPane = null;
+    private JPanel orderPanel = null;
 
 
     public Main() throws SQLException {
         super("Ponesi food delivery");
         this.setLayout(new BorderLayout(5, 5));
         this.mc = new MainController(_void -> displayItems());
-        this.oc = new OrderController();
 
+        this.oc = new OrderController(() -> {
+            this.remove(orderPanel);
+            this.add((orderPanel = new CurrentOrderPanel(oc)), BorderLayout.LINE_END);
+            this.validate();
+        });
+        orderPanel = new CurrentOrderPanel(oc);
         this.createMenu();
 
         var top = new ItemFiltersBar(mc);
@@ -32,11 +40,12 @@ public class Main extends JFrame {
         this.add(top, BorderLayout.PAGE_START);
 
         this.displayItems();
-
+        this.add(orderPanel, BorderLayout.LINE_END);
         this.pack();
         this.setVisible(true);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.oc.createOrder(UserRepository.getInstance().findAll().get(0), "Kuca");
     }
 
 

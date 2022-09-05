@@ -46,7 +46,7 @@ public class ItemRepository extends PossessiveRepository {
             }
         }
         this.returnConnection(conn);
-        return result.size() == 0 ? null : result;
+        return result;
     }
 
     /**

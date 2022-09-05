@@ -37,7 +37,7 @@ class ExtraAdder extends JPanel {
         increase.setFont(buttonFont);
         decrease.setFont(buttonFont);
         increase.addActionListener(e -> modifyQuantity(1));
-        decrease.addActionListener(e -> modifyQuantity(-11));
+        decrease.addActionListener(e -> modifyQuantity(-1));
         label = new JLabel(extra.getName());
 
         this.add(decrease, BorderLayout.LINE_START);
@@ -47,6 +47,8 @@ class ExtraAdder extends JPanel {
     }
 
     private void modifyQuantity(int i) {
+        if (quantity == 0 && i < 1)
+            return;
         quantity += i;
         label.setText(extra.getName() + (quantity == 0 ? "" : (" x" + quantity)));
     }

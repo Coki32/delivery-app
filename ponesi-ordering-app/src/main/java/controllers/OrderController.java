@@ -1,17 +1,12 @@
 package controllers;
 
 import data.ConnectionPool;
-import data.OrderRepository;
-import entities.Item;
-import entities.ItemExtra;
-import entities.Order;
-import entities.User;
-import util.UIUtilities;
+import entities.*;
 
 import javax.swing.*;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderController {
@@ -27,8 +22,13 @@ public class OrderController {
         }
     }
 
-    public OrderController() {
 
+    private Order currentOrder = null;
+
+    private Runnable onChange;
+
+    public OrderController(Runnable onChange) {
+        this.onChange = onChange;
     }
 
     /**
@@ -41,38 +41,48 @@ public class OrderController {
          * create procedure create_order(in pUserId int, in pAddressOverride varchar(100),
          *                               out pOrderId int, out pStatus bool, out pMsg varchar(255))
          */
-        var call = "{call create_order(?, ?, ?, ?, ?)}";
-        try (var cs = conn.prepareCall(call)) {
-            cs.setInt(1, user.getId());
-            cs.setString(2, address);
-            cs.registerOutParameter(3, Types.INTEGER);//pOrderId
-            cs.registerOutParameter(4, Types.BOOLEAN);//pStatus
-            cs.registerOutParameter(5, Types.VARCHAR);//pMsg
-            cs.execute();
-            var pStatus = cs.getBoolean(4);
-            if (pStatus) {
-                return OrderRepository.getInstance().findById(cs.getInt(3));
-            } else {
-                UIUtilities.msg(cs.getString(5), "Error creating order!");
-                return null;
-            }
-        }
+//        var call = "{call create_order(?, ?, ?, ?, ?)}";
+//        try (var cs = conn.prepareCall(call)) {
+//            cs.setInt(1, user.getId());
+//            cs.setString(2, address);
+//            cs.registerOutParameter(3, Types.INTEGER);//pOrderId
+//            cs.registerOutParameter(4, Types.BOOLEAN);//pStatus
+//            cs.registerOutParameter(5, Types.VARCHAR);//pMsg
+//            cs.execute();
+//            var pStatus = cs.getBoolean(4);
+//            if (pStatus) {
+//                return currentOrder = OrderRepository.getInstance().findById(cs.getInt(3));
+//            } else {
+//                UIUtilities.msg(cs.getString(5), "Error creating order!");
+//                return null;
+//            }
+//        }
+        currentOrder = new Order(1, user, null, address, null, null, new ArrayList<>());
+        onChange.run();
+        return currentOrder;
     }
 
     public void orderItem(Item item, List<ItemExtra> extras) {
-
+        if (currentOrder != null) {
+            currentOrder.getOrderedItems().add(new OrderItem(0, item, null, 1));
+            onChange.run();
+        }
     }
 
-    public double calculateCost(Order order) {
+    public double calculateCost() {
         return 0.0;
     }
 
-    public void sendOrder(Order order) {
+    public void sendOrder() {
 
     }
 
-    public boolean cancelOrder(Order o) {
+    public boolean cancelOrder() {
         return false;
     }
 
+
+    public Order getCurrentOrder() {
+        return currentOrder;
+    }
 }
