@@ -1,18 +1,16 @@
 import com.formdev.flatlaf.FlatIntelliJLaf;
+import components.ItemFiltersBar;
 import components.ItemSquare;
-import components.LockableJPanel;
-import components.SelectBox;
 import controller.MainController;
-import entity.Restaurant;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class Main extends JFrame {
 
-    private MainController mc = new MainController();
+    private MainController mc;
     JLabel koSi = new JLabel("Nisi niko jos");
 
     private JScrollPane itemPane = null;
@@ -21,14 +19,10 @@ public class Main extends JFrame {
     public Main() throws SQLException {
         super("Ponesi food delivery");
         this.setLayout(new BorderLayout(5, 5));
+        this.mc = new MainController(_void -> displayItems());
         this.createMenu();
 
-        var top = new JPanel(new BorderLayout(5, 5));
-        var userSelector = createUserSelector();
-        var restaurantSelector = createRestaurantSelector();
-        top.add(userSelector, BorderLayout.LINE_START);
-        top.add(restaurantSelector, BorderLayout.LINE_END);
-        top.add(koSi, BorderLayout.PAGE_END);
+        var top = new ItemFiltersBar(mc);
 
         this.add(top, BorderLayout.PAGE_START);
 
@@ -41,19 +35,17 @@ public class Main extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void selectRestaurant(Restaurant r) {
-        mc.selectRestaurant(r);
-        displayItems();
-    }
 
     private void displayItems() {
 
         var itemHolder = new JPanel();
+        itemHolder.setLayout(new BoxLayout(itemHolder, BoxLayout.Y_AXIS));
         mc.getItems().forEach(i -> itemHolder.add(new ItemSquare(i)));
-        itemHolder.setPreferredSize(new Dimension(300, 10000));
+        int height = Arrays.stream(itemHolder.getComponents()).mapToInt(c -> c.getPreferredSize().height + 20).sum();
+        itemHolder.setPreferredSize(new Dimension(300, height));
 
         var jsp = new JScrollPane(itemHolder);
-        jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         jsp.setAutoscrolls(true);
 
@@ -64,29 +56,6 @@ public class Main extends JFrame {
         itemPane = jsp;
     }
 
-
-    private JPanel createUserSelector() throws SQLException {
-        var sbox = new SelectBox<>("Choose a user", mc.getUsers(), u -> u.getUsername() + " - " + u.getName());
-
-        sbox.addItemSelectedListener(u -> {
-            koSi.setText(u.getUsername());
-        });
-        koSi.setText(sbox.getCurrentItem().getUsername());
-        var wrapper = new JPanel(new BorderLayout());
-        wrapper.setBorder(new EmptyBorder(20, 0, 20, 0));
-        wrapper.add(sbox, BorderLayout.CENTER);
-        return wrapper;
-    }
-
-    private JPanel createRestaurantSelector() throws SQLException {
-        var sbox = new SelectBox<>("Choose a restaurant", mc.getRestaurants(), Restaurant::getName);
-        sbox.addItemSelectedListener(this::selectRestaurant);
-        return new LockableJPanel<>(sbox, "Select a restaurant", true, box -> {
-            selectRestaurant(null);
-        }, box -> {
-            selectRestaurant(box.getCurrentItem());
-        });
-    }
 
     //Just want CTRL+Q
     private void createMenu() {

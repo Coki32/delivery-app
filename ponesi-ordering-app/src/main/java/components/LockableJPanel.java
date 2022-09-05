@@ -45,6 +45,7 @@ public class LockableJPanel<T extends JPanel> extends JPanel {
     //Naming is ridiculous because JPanel already took all the good names
     public void setIsLocked(boolean locked) {
         this.isLocked = locked;
+        cb.setSelected(!locked);
         child.setEnabled(!locked);
         for (var c : child.getComponents()) {
             c.setEnabled(!locked);

@@ -13,8 +13,14 @@ public class ItemSquare extends JPanel {
     private static final float BIG_FONT_SCALE = 1.2f;
     private static final float LIL_FONT_SCALE = 1.1f;
 
+    private static final CompoundBorder border = new CompoundBorder(
+            new CompoundBorder(new EmptyBorder(10, 5, 10, 5), new BevelBorder(BevelBorder.RAISED, Color.BLACK, Color.DARK_GRAY)),
+            new EmptyBorder(10, 10, 10, 10)
+    );
+
     public ItemSquare(Item item) {
-        this.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, Color.BLACK, Color.DARK_GRAY), new EmptyBorder(5, 5, 5, 5)));
+        super(new BorderLayout(10, 10));
+        this.setBorder(border);
         var name = new JLabel(item.getName());
         var description = new JTextArea(item.getDescription());
         var price = new JLabel(String.format("%.2f KM", item.getPrice()));
@@ -32,12 +38,9 @@ public class ItemSquare extends JPanel {
         description.setWrapStyleWord(true);
         description.setEditable(false);
 
-        this.setLayout(new BorderLayout(10, 20));
+//        this.setMaximumSize(new Dimension(1000, 200));
 
-        this.setMinimumSize(new Dimension(300, 150));
-        this.setMaximumSize(new Dimension(300, 800));
-
-        var bottom = new JPanel(new BorderLayout(10, 5));
+        var bottom = new JPanel(new BorderLayout(5, 5));
         bottom.add(kind, BorderLayout.PAGE_START);
         bottom.add(from, BorderLayout.PAGE_END);
 

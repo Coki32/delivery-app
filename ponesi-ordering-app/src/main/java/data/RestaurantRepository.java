@@ -1,6 +1,7 @@
 package data;
 
 import data.base.PossessiveRepository;
+import entity.ItemKind;
 import entity.Restaurant;
 
 import java.sql.SQLException;
@@ -13,8 +14,16 @@ import java.util.List;
 public class RestaurantRepository extends PossessiveRepository {
 
 
-    public RestaurantRepository() {
+    private static RestaurantRepository instance;
 
+    private RestaurantRepository() {
+
+    }
+
+    public static synchronized RestaurantRepository getInstance() {
+        if (instance == null)
+            instance = new RestaurantRepository();
+        return instance;
     }
 
     private List<String> loadCategories(int id) throws SQLException {
@@ -81,6 +90,37 @@ public class RestaurantRepository extends PossessiveRepository {
                             null
                     );
                     result.setCategories(this.loadCategories(result.getId()));
+                }
+            }
+        }
+        this.returnConnection(conn);
+        return result;
+    }
+
+
+    /**
+     * @param r Optional, if specified finds only kinds for that restaurant
+     * @return
+     * @throws SQLException
+     */
+    public List<ItemKind> findItemKinds(Restaurant r) throws SQLException {
+        var conn = this.getConnection();
+        var result = new ArrayList<ItemKind>();
+        var query = "select " +
+                "distinct ik.name, ik.id " +
+                "from item_kind ik " +
+                "join item i on ik.id = i.item_kind_id " +
+                "join restaurant r on i.restaurant_id = r.id ";
+//                "where r.id = ?";
+        if (r != null) {
+            query += " where r.id = ?";
+        }
+        try (var ps = conn.prepareStatement(query)) {
+            if (r != null)
+                ps.setInt(1, r.getId());
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new ItemKind(rs.getInt("id"), rs.getString("name")));
                 }
             }
         }
