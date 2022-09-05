@@ -1,8 +1,8 @@
 package data;
 
 import data.base.PossessiveRepository;
-import entity.ItemKind;
-import entity.Restaurant;
+import entities.ItemKind;
+import entities.Restaurant;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

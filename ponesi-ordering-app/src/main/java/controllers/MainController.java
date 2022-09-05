@@ -1,12 +1,12 @@
-package controller;
+package controllers;
 
 import data.ItemRepository;
 import data.RestaurantRepository;
 import data.UserRepository;
-import entity.Item;
-import entity.ItemKind;
-import entity.Restaurant;
-import entity.User;
+import entities.Item;
+import entities.ItemKind;
+import entities.Restaurant;
+import entities.User;
 
 import javax.swing.*;
 import java.sql.SQLException;

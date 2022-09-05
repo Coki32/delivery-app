@@ -1,7 +1,8 @@
-import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatDarculaLaf;
 import components.ItemFiltersBar;
 import components.ItemSquare;
-import controller.MainController;
+import controllers.MainController;
+import controllers.OrderController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +12,8 @@ import java.util.Arrays;
 public class Main extends JFrame {
 
     private MainController mc;
+    private OrderController oc;
+
     JLabel koSi = new JLabel("Nisi niko jos");
 
     private JScrollPane itemPane = null;
@@ -20,6 +23,8 @@ public class Main extends JFrame {
         super("Ponesi food delivery");
         this.setLayout(new BorderLayout(5, 5));
         this.mc = new MainController(_void -> displayItems());
+        this.oc = new OrderController();
+
         this.createMenu();
 
         var top = new ItemFiltersBar(mc);
@@ -28,7 +33,6 @@ public class Main extends JFrame {
 
         this.displayItems();
 
-        this.setMaximumSize(new Dimension(500, 480));
         this.pack();
         this.setVisible(true);
 
@@ -37,17 +41,16 @@ public class Main extends JFrame {
 
 
     private void displayItems() {
-
         var itemHolder = new JPanel();
         itemHolder.setLayout(new BoxLayout(itemHolder, BoxLayout.Y_AXIS));
-        mc.getItems().forEach(i -> itemHolder.add(new ItemSquare(i)));
+        mc.getItems().forEach(i -> itemHolder.add(new ItemSquare(i, oc)));
+
         int height = Arrays.stream(itemHolder.getComponents()).mapToInt(c -> c.getPreferredSize().height + 20).sum();
         itemHolder.setPreferredSize(new Dimension(300, height));
 
         var jsp = new JScrollPane(itemHolder);
-        jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        jsp.setAutoscrolls(true);
+//        jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//        jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         if (itemPane != null) this.remove(itemPane);
 
@@ -72,12 +75,12 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) throws SQLException {
-        FlatIntelliJLaf.setup();
+        FlatDarculaLaf.setup();
         UIManager.put("Button.arc", 10);
         UIManager.put("Component.arc", 10);
         UIManager.put("ProgressBar.arc", 10);
         UIManager.put("TextComponent.arc", 10);
-        System.setProperty("flatlaf.uiScale", "1.5");
+        System.setProperty("flatlaf.uiScale", "1.25");
         new Main();
     }
 }

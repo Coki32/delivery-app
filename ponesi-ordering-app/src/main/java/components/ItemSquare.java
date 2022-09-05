@@ -1,12 +1,15 @@
 package components;
 
-import entity.Item;
+import controllers.OrderController;
+import entities.Item;
+import forms.OrderItemPopup;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class ItemSquare extends JPanel {
 
@@ -18,7 +21,7 @@ public class ItemSquare extends JPanel {
             new EmptyBorder(10, 10, 10, 10)
     );
 
-    public ItemSquare(Item item) {
+    public ItemSquare(Item item, OrderController oc) {
         super(new BorderLayout(10, 10));
         this.setBorder(border);
         var name = new JLabel(item.getName());
@@ -26,6 +29,7 @@ public class ItemSquare extends JPanel {
         var price = new JLabel(String.format("%.2f KM", item.getPrice()));
         var kind = new JLabel(item.getKind());
         var from = new JLabel(item.getRestaurant() == null ? "Nepoznanto" : item.getRestaurant().getName());
+        var order = new JButton("Order");
         var bigFont = name.getFont().deriveFont(name.getFont().getSize() * BIG_FONT_SCALE);
         var lilFont = name.getFont().deriveFont(name.getFont().getSize() * LIL_FONT_SCALE);
         bigFont = bigFont.deriveFont(Font.BOLD);
@@ -37,17 +41,24 @@ public class ItemSquare extends JPanel {
         description.setLineWrap(true);
         description.setWrapStyleWord(true);
         description.setEditable(false);
-
-//        this.setMaximumSize(new Dimension(1000, 200));
+        order.addActionListener(e -> {
+            try {
+                new OrderItemPopup(item, oc);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         var bottom = new JPanel(new BorderLayout(5, 5));
         bottom.add(kind, BorderLayout.PAGE_START);
         bottom.add(from, BorderLayout.PAGE_END);
 
         this.add(name, BorderLayout.PAGE_START);
+        this.add(order, BorderLayout.LINE_START);
         this.add(description, BorderLayout.CENTER);
         this.add(price, BorderLayout.LINE_END);
         this.add(bottom, BorderLayout.PAGE_END);
+
     }
 
 }

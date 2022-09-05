@@ -1,4 +1,4 @@
-package entity;
+package entities;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public class Item {
     private double price;
     private String kind;
     private List<ItemExtra> extras;
-    
+
     private Restaurant restaurant;
 
     public Item(int id, String name, String description, double price, String kind, List<ItemExtra> extras, Restaurant restaurant) {
@@ -80,7 +80,7 @@ public class Item {
                 ", price=" + price +
                 ", kind='" + kind + '\'' +
                 ", extras=" + extras +
-                ", restaurant=" + restaurant +
+                ", restaurant=" + (restaurant != null ? restaurant.getName() : "null") +
                 '}';
     }
 

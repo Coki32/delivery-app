@@ -1,27 +1,50 @@
 package components;
 
-import controller.MainController;
-import entity.ItemKind;
-import entity.Restaurant;
+import controllers.MainController;
+import entities.ItemKind;
+import entities.Restaurant;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class ItemFiltersBar extends JPanel {
 
-    private final MainController mc;
+    private static final int WIDTH_BREAKPOINT = 850;
 
+    private final MainController mc;
+    private int rows = 1, cols = 4;
     private LockableJPanel<SelectBox<ItemKind>> itemKindSelector;
 
     public ItemFiltersBar(MainController mc) {
         this.mc = mc;
-        this.setLayout(new GridLayout(1, 4, 5, 0));
+        this.setLayout(new GridLayout(rows, cols, 5, 0));
         itemKindSelector = createItemKindSelector();
         this.add(createUserSelector());
         this.add(createRestaurantSelector());
         this.add(createItemNameFilter());
         this.add(itemKindSelector);
+        //OPA RESPONSIVE
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (e.getComponent() instanceof ItemFiltersBar) {
+                    var bar = (ItemFiltersBar) e.getComponent();
+                    if (bar.getSize().width < WIDTH_BREAKPOINT && bar.rows == 1) {
+                        System.out.println("Mijenjam, sirina=" + bar.getSize().width);
+                        bar.setLayout(new GridLayout((bar.rows = 2), (bar.cols = 2), 5, 5));
+                        bar.validate();
+                    } else if (bar.getSize().width > WIDTH_BREAKPOINT && bar.rows == 2) {
+
+                        System.out.println("Mijenjam, sirina=" + bar.getSize().width);
+                        bar.setLayout(new GridLayout((bar.rows = 1), (bar.cols = 4), 5, 0));
+                        bar.validate();
+                    }
+                }
+            }
+        });
     }
 
     private JPanel createUserSelector() {

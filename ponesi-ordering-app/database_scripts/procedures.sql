@@ -99,9 +99,10 @@ begin
     where item_extra_id = pOrderItemId
       and item_extra_id = pItemExtraId;
 
+    start transaction ;
 
     if @alreadyAdded = 0 then -- insert the new one
-        select additinal_cost into @extraPrice from item_extra where id = pItemExtraId;
+        select additional_cost into @extraPrice from item_extra where id = pItemExtraId;
         insert into order_item_has_item_extra (order_item_id, item_extra_id, ordered_extra_price,
                                                ordered_extra_quantity)
         values (pOrderItemId, pItemExtraId, @extraPrice, pExtraQuantity);
@@ -112,6 +113,25 @@ begin
           and item_extra_id = pItemExtraId;
     end if;
 
+    -- Check that it didn't go over the limit
+    select ordered_extra_quantity
+    into @TotalQuantity
+    from order_item_has_item_extra
+    where order_item_id = pOrderItemId
+      and item_extra_id = pItemExtraId;
+
+    select max_choices
+    into @MaxForGroup
+    from extra_group eg
+             join item_extra ie on eg.id = ie.extra_group_id
+    where ie.id = pItemExtraId;
+    if @TotalQuantity > @MaxForGroup then
+        set pMsg = 'You can''t add that much of that extra!';
+        rollback;
+    else
+        set pStatus = true;
+        commit;
+    end if;
 end$$
 delimiter ;
 

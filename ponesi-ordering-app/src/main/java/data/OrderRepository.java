@@ -1,7 +1,7 @@
 package data;
 
 import data.base.PossessiveRepository;
-import entity.*;
+import entities.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

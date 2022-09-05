@@ -1,4 +1,4 @@
-package entity;
+package entities;
 
 public class OrderExtra extends ItemExtra {
 

@@ -1,11 +1,11 @@
-package controller;
+package controllers;
 
 import data.ConnectionPool;
 import data.OrderRepository;
-import entity.Item;
-import entity.ItemExtra;
-import entity.Order;
-import entity.User;
+import entities.Item;
+import entities.ItemExtra;
+import entities.Order;
+import entities.User;
 import util.UIUtilities;
 
 import javax.swing.*;
