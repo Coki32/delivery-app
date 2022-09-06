@@ -4,16 +4,19 @@ import components.ItemFiltersBar;
 import components.ItemSquare;
 import controllers.MainController;
 import controllers.OrderController;
-import data.UserRepository;
+import util.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Main extends JFrame {
+    private final Executor executor = Executors.newCachedThreadPool();
 
-    private MainController mc;
+    private final MainController mc;
     private OrderController oc;
 
     JLabel koSi = new JLabel("Nisi niko jos");
@@ -27,12 +30,12 @@ public class Main extends JFrame {
         this.setLayout(new BorderLayout(5, 5));
         this.mc = new MainController(_void -> displayItems());
 
-        this.oc = new OrderController(() -> {
+        this.oc = new OrderController(mc, () -> {
             this.remove(orderPanel);
-            this.add((orderPanel = new CurrentOrderPanel(oc)), BorderLayout.LINE_END);
+            this.add((orderPanel = new CurrentOrderPanel(oc, 6)), BorderLayout.LINE_END);
             this.validate();
         });
-        orderPanel = new CurrentOrderPanel(oc);
+        orderPanel = new CurrentOrderPanel(oc, 6);
         this.createMenu();
 
         var top = new ItemFiltersBar(mc);
@@ -43,29 +46,30 @@ public class Main extends JFrame {
         this.add(orderPanel, BorderLayout.LINE_END);
         this.pack();
         this.setVisible(true);
-
+        Logger.log(String.format("Za %d je %f", 6, oc.calculateCost(6)), this);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.oc.createOrder(UserRepository.getInstance().findAll().get(0), "Kuca");
     }
 
 
     private void displayItems() {
-        var itemHolder = new JPanel();
-        itemHolder.setLayout(new BoxLayout(itemHolder, BoxLayout.Y_AXIS));
-        mc.getItems().forEach(i -> itemHolder.add(new ItemSquare(i, oc)));
+        executor.execute(() -> {
+            var itemHolder = new JPanel();
+            itemHolder.setLayout(new BoxLayout(itemHolder, BoxLayout.Y_AXIS));
+            mc.getItems().forEach(i -> itemHolder.add(new ItemSquare(i, oc)));
 
-        int height = Arrays.stream(itemHolder.getComponents()).mapToInt(c -> c.getPreferredSize().height + 20).sum();
-        itemHolder.setPreferredSize(new Dimension(300, height));
+            int height = Arrays.stream(itemHolder.getComponents()).mapToInt(c -> c.getPreferredSize().height + 20).sum();
+            itemHolder.setPreferredSize(new Dimension(300, height));
 
-        var jsp = new JScrollPane(itemHolder);
-//        jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-//        jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            var jsp = new JScrollPane(itemHolder);
+            SwingUtilities.invokeLater(() -> {
+                if (itemPane != null) this.remove(itemPane);
 
-        if (itemPane != null) this.remove(itemPane);
+                this.add(jsp, BorderLayout.CENTER);
+                this.validate();
+                itemPane = jsp;
+            });
+        });
 
-        this.add(jsp, BorderLayout.CENTER);
-        this.validate();
-        itemPane = jsp;
     }
 
 

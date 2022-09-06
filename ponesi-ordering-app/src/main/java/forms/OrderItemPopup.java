@@ -5,6 +5,7 @@ import controllers.OrderController;
 import data.ItemRepository;
 import entities.Item;
 import entities.ItemExtra;
+import util.UIUtilities;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,9 +14,12 @@ import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class OrderItemPopup extends JFrame {
+    private final Executor executor = Executors.newSingleThreadExecutor();
 
     private final Item item;
     private final OrderController oc;
@@ -76,6 +80,20 @@ public class OrderItemPopup extends JFrame {
     }
 
     private void addItem(ActionEvent actionEvent) {
-        oc.orderItem(item, null);
+        executor.execute(() -> {
+            try {
+                oc.orderItem(item, groups.stream().map(ItemExtraGroupView::getExtrasForGroup).reduce((l1, l2) -> {
+                    var result = new ArrayList<>(l1);
+                    result.addAll(l2);
+                    return result;
+                }).orElse(new ArrayList<>()));
+                SwingUtilities.invokeLater(() -> {
+                    this.setVisible(false);
+                    this.dispose();
+                });
+            } catch (SQLException e) {
+                UIUtilities.msg("Error:" + e.getMessage(), "Could not add item to order");
+            }
+        });
     }
 }

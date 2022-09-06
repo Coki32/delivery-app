@@ -31,7 +31,8 @@ public class OrderRepository extends PossessiveRepository {
                 "from `order` o " +
                 "join user u on o.user_id = u.id " +
                 "join courier c on o.courier_id = c.id " +
-                "join delivery_type dt on o.delivery_type_id = dt.id ";
+                "join delivery_type dt on o.delivery_type_id = dt.id " +
+                "where o.id = ?";
         try (var ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
             try (var rs = ps.executeQuery()) {
@@ -84,6 +85,7 @@ public class OrderRepository extends PossessiveRepository {
                             null,
                             rs.getInt("oi_quantity"));
                     oi.setExtras(loadExtras(oi));
+                    result.add(oi);
                 }
             }
         }

@@ -2,24 +2,34 @@ package components;
 
 import entities.ItemExtra;
 import entities.ItemExtraGroup;
+import entities.OrderExtra;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemExtraGroupView extends JPanel {
 
+    private List<ExtraAdder> adders = new ArrayList<>();
 
     public ItemExtraGroupView(ItemExtraGroup group, java.util.List<ItemExtra> extras) {
         this.setLayout(new GridLayout(0, 1, 5, 5));
         this.setBorder(new TitledBorder(new LineBorder(Color.BLACK), group.getName()));
 
         extras.forEach(ex -> {
-            this.add(new ExtraAdder(ex));
+            var adder = new ExtraAdder(ex);
+            adders.add(adder);
+            this.add(adder);
         });
-
     }
+
+    public List<OrderExtra> getExtrasForGroup() {
+        return adders.stream().map(ExtraAdder::getExtra).filter(oe -> oe.getQuantity() > 0).toList();
+    }
+
 }
 
 class ExtraAdder extends JPanel {
@@ -53,5 +63,8 @@ class ExtraAdder extends JPanel {
         label.setText(extra.getName() + (quantity == 0 ? "" : (" x" + quantity)));
     }
 
+    public OrderExtra getExtra() {
+        return new OrderExtra(extra.getId(), extra.getGroup(), extra.getRestaurant(), extra.getName(), extra.getAdditional_cost(), quantity);
+    }
 
 }

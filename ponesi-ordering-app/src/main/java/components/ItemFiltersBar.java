@@ -9,9 +9,12 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class ItemFiltersBar extends JPanel {
 
+    private final Executor executor = Executors.newSingleThreadExecutor();
     private static final int WIDTH_BREAKPOINT = 850;
 
     private final MainController mc;
@@ -48,9 +51,10 @@ public class ItemFiltersBar extends JPanel {
     }
 
     private JPanel createUserSelector() {
-        var sbox = new SelectBox<>("Choose a user", mc.getUsers(), u -> u.getUsername() + " - " + u.getName());
+        var users = mc.getUsers();
+        var sbox = new SelectBox<>("Choose a user", users, u -> u.getUsername() + " - " + u.getName());
         sbox.addItemSelectedListener(mc::setCurrentUser);
-
+        mc.setCurrentUser(users.get(0));
         var wrapper = new JPanel(new BorderLayout());
         wrapper.setBorder(new EmptyBorder(20, 0, 20, 0));
         wrapper.add(sbox, BorderLayout.CENTER);
@@ -80,10 +84,11 @@ public class ItemFiltersBar extends JPanel {
     }
 
     private void refreshKinds() {
-        this.remove(itemKindSelector);
         this.itemKindSelector = createItemKindSelector();
+        this.remove(itemKindSelector);
         this.add(itemKindSelector);
         this.validate();
+
     }
 
     private LockableJPanel<SelectBox<ItemKind>> createItemKindSelector() {

@@ -1,3 +1,4 @@
+drop procedure calculate_order_total;
 delimiter $$
 create procedure calculate_order_total(in pOrderId int, out pTotal decimal(10, 2))
 begin
@@ -8,7 +9,7 @@ begin
 end$$
 delimiter ;
 
-
+drop procedure add_payment_method;
 delimiter $$
 create procedure add_payment_method(in pOrderId int, in pPaymentType enum ('cash','card'), in pCardId int,
                                     in pCashAmount decimal(10, 2), out pStatus bool, out pMsg varchar(255))
@@ -44,13 +45,19 @@ begin
 end$$
 delimiter ;
 
-
+drop procedure send_order;
 delimiter $$
-create procedure send_order(in pOrderId int, out pStatus bool, out pMsg varchar(255))
+create procedure send_order(in pOrderId int, in pAddressOverride varchar(100), out pStatus bool, out pMsg varchar(255))
 begin
     -- Single restaurant in order is already guaranteed by verify_same_restaurant trigger.
     -- now it's just a matter of adding an entry to order_has_order_status with status 'Waiting for restaurant'
+    declare vDeliveryAddress varchar(100) default null;
+
     set pStatus = false;
+
+    if pAddressOverride is null then -- use default delivery address
+        select address into vDeliveryAddress from user where id = (select user_id from `order` where id = pOrderId);
+    end if;
 
     select order_payment_id into @cPaymentId from `order` where id = pOrderId;
     if @cPaymentId is null then
@@ -86,9 +93,9 @@ begin
 end$$
 delimiter ;
 
-
+drop procedure add_order_item_extra;
 delimiter $$
-create procedure add_order_item_extra(in pOrderId int, in pOrderItemId int, in pItemExtraId int, in pExtraQuantity int,
+create procedure add_order_item_extra(in pOrderItemId int, in pItemExtraId int, in pExtraQuantity int,
                                       out pStatus bool, out pMsg varchar(255))
 begin
     set pStatus = false;
@@ -136,36 +143,42 @@ begin
 end$$
 delimiter ;
 
+drop procedure add_order_item;
+
 delimiter $$
-create procedure add_order_item(in pOrderId int, in pItemId int, out pStatus bool, out pMsg varchar(255))
+create procedure add_order_item(in pOrderId int, in pItemId int, out pOrderItemId int, out pStatus bool,
+                                out pMsg varchar(255))
 begin
     set pStatus = false;
     select price into @currentPrice from item where id = pItemId;
     insert into order_item (item_id, order_id, ordered_item_price, quantity)
     VALUES (pItemId, pOrderId, @currentPrice, 1);
+    set pOrderItemId = last_insert_id();
     set pStatus = true;
     set pMsg = 'Success!';
 end$$
 delimiter ;
 
+
+drop procedure create_order;
+
 delimiter $$
-create procedure create_order(in pUserId int, in pAddressOverride varchar(100), in pDeliveryType int,
-                              out pStatus bool, out pMsg varchar(255))
+create procedure create_order(in pUserId int,
+                              out pOrderId int, out pStatus bool, out pMsg varchar(255))
 begin
-    declare vDeliveryAddress varchar(100) default null;
+    
     declare vCourierId int;
+    declare vDeliveryType int;
     set pStatus = false;
 
-    if pAddressOverride is null then -- use default delivery address
-        select address into vDeliveryAddress from user where id = pUserId;
-    end if;
+    select id into vDeliveryType from delivery_type order by rand() limit 1;
 
     select id into vCourierId from courier order by rand() limit 1;
 
-
     insert into `order` (user_id, order_payment_id, order_address, courier_id, delivery_type_id)
-    VALUES (pUserId, NULL, vDeliveryAddress, vCourierId, pDeliveryType);
+    VALUES (pUserId, NULL, NULL, vCourierId, vDeliveryType);
 
+    set pOrderId = last_insert_id();
     set pStatus = true;
 end$$
 delimiter ;
