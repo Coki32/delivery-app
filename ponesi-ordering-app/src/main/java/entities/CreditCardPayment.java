@@ -2,18 +2,18 @@ package entities;
 
 public class CreditCardPayment extends Payment {
 
-    private int creditCardId;
+    private CreditCard creditCard;
 
-    public CreditCardPayment(int id, int creditCardId) {
+    public CreditCardPayment(int id, CreditCard creditCard) {
         super(id);
-        this.creditCardId = creditCardId;
+        this.creditCard = creditCard;
     }
 
-    public int getCreditCardId() {
-        return creditCardId;
+    public CreditCard getCreditCard() {
+        return creditCard;
     }
 
-    public void setCreditCardId(int creditCardId) {
-        this.creditCardId = creditCardId;
+    public void setCreditCard(CreditCard creditCard) {
+        this.creditCard = creditCard;
     }
 }

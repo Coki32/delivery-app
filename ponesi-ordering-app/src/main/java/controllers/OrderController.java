@@ -3,6 +3,7 @@ package controllers;
 import data.ConnectionPool;
 import data.OrderRepository;
 import entities.*;
+import forms.SentOrderPopup;
 import util.UIUtilities;
 
 import javax.swing.*;
@@ -108,9 +109,11 @@ public class OrderController {
                 }
             }
         }
+        currentOrder = OrderRepository.getInstance().findById(currentOrder.getId());
+        onChange.run();
     }
 
-    public double calculateCost(int orderId) throws SQLException {
+    public static double calculateCost(int orderId) throws SQLException {
         var call = "{ call calculate_order_total(?, ?)}";
         try (var cs = conn.prepareCall(call)) {
             cs.setInt(1, orderId);
@@ -121,7 +124,7 @@ public class OrderController {
     }
 
     public double calculateCost() throws SQLException {
-        return calculateCost(currentOrder.getId());
+        return OrderController.calculateCost(currentOrder.getId());
     }
 
     public boolean addPaymentMethod(Payment payment) throws SQLException {
@@ -135,7 +138,7 @@ public class OrderController {
         try (var cs = conn.prepareCall(call)) {
             cs.setInt(1, currentOrder.getId());
             cs.setString(2, payment instanceof CashPayment ? "cash" : "card");
-            cs.setInt(3, payment instanceof CashPayment ? -1 : ((CreditCardPayment) payment).getCreditCardId());
+            cs.setInt(3, payment instanceof CashPayment ? -1 : ((CreditCardPayment) payment).getCreditCard().getId());
             cs.setDouble(4, payment instanceof CashPayment ? ((CashPayment) payment).getUserHasAmount() : 0);
             cs.registerOutParameter(5, Types.BOOLEAN);//status
             cs.registerOutParameter(6, Types.VARCHAR);//msg
@@ -171,6 +174,7 @@ public class OrderController {
                 return false;
             }
         }
+        onChange.run();
         return true;
     }
 
@@ -196,12 +200,19 @@ public class OrderController {
             ps.setInt(1, currentOrder.getId());
             ps.executeUpdate();
         }
+        this.currentOrder = null;
+        onChange.run();
         return true;
     }
 
 
     public Order getCurrentOrder() {
         return currentOrder;
+    }
+
+    public void setCurrentOrder(Order order) {
+        this.currentOrder = order;
+        onChange.run();
     }
 
     /**
@@ -215,5 +226,12 @@ public class OrderController {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //Moves current active order to a new window and clears current order
+    public void finishOrder() throws SQLException {
+        new SentOrderPopup(currentOrder);
+        currentOrder = null;
+        onChange.run();
     }
 }

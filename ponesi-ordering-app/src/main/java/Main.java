@@ -4,7 +4,8 @@ import components.ItemFiltersBar;
 import components.ItemSquare;
 import controllers.MainController;
 import controllers.OrderController;
-import util.Logger;
+import forms.AddCreditCard;
+import forms.UserCreate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +25,8 @@ public class Main extends JFrame {
     private JScrollPane itemPane = null;
     private JPanel orderPanel = null;
 
+    private JPanel top;
+
 
     public Main() throws SQLException {
         super("Ponesi food delivery");
@@ -31,14 +34,15 @@ public class Main extends JFrame {
         this.mc = new MainController(_void -> displayItems());
 
         this.oc = new OrderController(mc, () -> {
-            this.remove(orderPanel);
-            this.add((orderPanel = new CurrentOrderPanel(oc, 6)), BorderLayout.LINE_END);
+            if (orderPanel != null)
+                this.remove(orderPanel);
+            this.add((orderPanel = new CurrentOrderPanel(oc)), BorderLayout.LINE_END);
             this.validate();
         });
-        orderPanel = new CurrentOrderPanel(oc, 6);
+        orderPanel = new CurrentOrderPanel(oc);
         this.createMenu();
 
-        var top = new ItemFiltersBar(mc);
+        top = new ItemFiltersBar(mc);
 
         this.add(top, BorderLayout.PAGE_START);
 
@@ -46,7 +50,6 @@ public class Main extends JFrame {
         this.add(orderPanel, BorderLayout.LINE_END);
         this.pack();
         this.setVisible(true);
-        Logger.log(String.format("Za %d je %f", 6, oc.calculateCost(6)), this);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
@@ -76,14 +79,45 @@ public class Main extends JFrame {
     //Just want CTRL+Q
     private void createMenu() {
         JMenuBar jmb = new JMenuBar();
-        JMenu jm = new JMenu("File");
-        JMenuItem mi = new JMenuItem("Quit");
-        mi.setAccelerator(KeyStroke.getKeyStroke('Q', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        mi.addActionListener(event -> {
+        JMenu file = new JMenu("File");
+        JMenu users = new JMenu("Users");
+
+        JMenuItem quitItem = new JMenuItem("Quit");
+        quitItem.setAccelerator(KeyStroke.getKeyStroke('Q', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        quitItem.addActionListener(event -> {
             System.exit(0);
         });
-        jm.add(mi);
-        jmb.add(jm);
+
+        JMenuItem refreshItem = new JMenuItem("Refresh");
+        refreshItem.setAccelerator(KeyStroke.getKeyStroke('R', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        refreshItem.addActionListener(event -> {
+            if (top != null)
+                this.remove(top);
+            top = new ItemFiltersBar(mc);
+            this.add(top, BorderLayout.PAGE_START);
+            this.validate();
+        });
+
+        JMenuItem userAdd = new JMenuItem("Create a new user");
+        userAdd.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        userAdd.addActionListener(e -> {
+            new UserCreate();
+        });
+
+        JMenuItem creditCardAdd = new JMenuItem("Add users credit card");
+        userAdd.setAccelerator(KeyStroke.getKeyStroke('M', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        userAdd.addActionListener(e -> {
+            new AddCreditCard();
+        });
+
+        file.add(quitItem);
+        file.add(refreshItem);
+
+        users.add(userAdd);
+        users.add(creditCardAdd);
+
+        jmb.add(file);
+        jmb.add(users);
         this.setJMenuBar(jmb);
     }
 

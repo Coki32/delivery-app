@@ -84,8 +84,9 @@ public class ItemFiltersBar extends JPanel {
     }
 
     private void refreshKinds() {
+        if (itemKindSelector != null)
+            this.remove(itemKindSelector);
         this.itemKindSelector = createItemKindSelector();
-        this.remove(itemKindSelector);
         this.add(itemKindSelector);
         this.validate();
 
