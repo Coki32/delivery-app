@@ -1,18 +1,12 @@
 create or replace view orders_with_item_totals as
 select oi.order_id                                                                as order_id,
+       oi.id                                                                      as order_item_id,
        ordered_item_price                                                         as base_price,
        coalesce(sum(oihie.ordered_extra_price * oihie.ordered_extra_quantity), 0) as extras,
        quantity                                                                   as quantity
 from order_item oi
          left outer join order_item_has_item_extra oihie on oi.id = oihie.order_item_id
 group by oi.id;
-
-create or replace view item_ordering_frequency as
-select it.id, it.name, r.name as restaurant, count(oi.id) as times_ordered
-from item it
-         join restaurant r on r.id = it.restaurant_id
-         join order_item oi on it.id = oi.item_id
-group by oi.item_id;
 
 
 # select distinct r.id, r.options_shown, r.options_chosen, r.order_id, o.id, ri.restaurant_id, ri.restauarnt_name

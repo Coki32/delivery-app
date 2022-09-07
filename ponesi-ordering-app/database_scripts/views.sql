@@ -1,5 +1,6 @@
 create or replace view orders_with_item_totals as
 select oi.order_id                                                                as order_id,
+       oi.id                                                                      as order_item_id,
        ordered_item_price                                                         as base_price,
        coalesce(sum(oihie.ordered_extra_price * oihie.ordered_extra_quantity), 0) as extras,
        quantity                                                                   as quantity

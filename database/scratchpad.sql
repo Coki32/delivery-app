@@ -12,3 +12,5 @@ insert into item_extra (extra_group_id, restaurant_id, name, additional_cost) va
 insert into item_has_item_extra (item_id, item_extra_id) values (188,1), (188,2), (188,3); -- Gong pao piletina
 insert into item_has_item_extra (item_id, item_extra_id) values (189,1), (189,2), (189,3), (189,4), (189,5), (189,6), (189,7); -- Fit wok
 
+# alter za NOT NULL za address i NOT NULL za courier_id
+alter table `order` modify courier_id int not null;

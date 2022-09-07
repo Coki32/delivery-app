@@ -9,7 +9,6 @@ import entities.OrderStatus;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
-import java.util.Comparator;
 
 public class OrderView extends JPanel {
 
@@ -47,7 +46,6 @@ public class OrderView extends JPanel {
     }
 
     private void refresh() throws InterruptedException, SQLException {
-        var allStatuses = OrderRepository.getInstance().getAllStatuses();
         OrderStatus currentStatus = OrderRepository.getInstance().getOrderStatus(order);
         final String stat = currentStatus.getStatus();
         SwingUtilities.invokeLater(() -> {
@@ -73,7 +71,7 @@ public class OrderView extends JPanel {
                     this.validate();
                 });
             }
-        } while (currentStatus.getId() != allStatuses.stream().max(Comparator.comparingInt(OrderStatus::getId)).get().getId());
+        } while (this.isVisible());
 
     }
 

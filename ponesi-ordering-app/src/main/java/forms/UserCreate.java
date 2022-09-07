@@ -6,6 +6,7 @@ import entities.User;
 import util.UIUtilities;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
@@ -20,20 +21,23 @@ public class UserCreate extends JFrame {
 
     public UserCreate() {
         super("Create a new user");
-        this.setLayout(new GridLayout(0, 1));
-        this.add(new LabeledInput("Username", u -> this.username = u));
-        this.add(new LabeledInput("E-Mail", u -> this.email = u));
-        this.add(new LabeledInput("Password", u -> this.password = u));
-        this.add(new LabeledInput("Address", u -> this.address = u));
-        this.add(new LabeledInput("Full name", u -> this.name = u));
+        var content = new JPanel(new GridLayout(0, 1, 5, 5));
+        content.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        content.add(new LabeledInput("Username", u -> this.username = u));
+        content.add(new LabeledInput("E-Mail", u -> this.email = u));
+        content.add(new LabeledInput("Password", u -> this.password = u));
+        content.add(new LabeledInput("Address", u -> this.address = u));
+        content.add(new LabeledInput("Full name", u -> this.name = u));
 
         var addBtn = new JButton("Add");
         var cancelBtn = new JButton("Cancel");
         addBtn.addActionListener(this::addUser);
         cancelBtn.addActionListener(this::cancel);
 
-        this.add(addBtn);
-        this.add(cancelBtn);
+        content.add(addBtn);
+        content.add(cancelBtn);
+        this.add(content);
         this.pack();
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

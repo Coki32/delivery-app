@@ -76,3 +76,26 @@ begin
 end$$
 delimiter ;
 
+delimiter $$
+drop trigger verify_cc;
+create trigger verify_cc
+    before insert
+    on credit_card
+    for each row
+begin
+    if not new.exp_date regexp '^\\d{2}\\/\\d{2}$' then
+        signal sqlstate '45000'
+            set message_text = 'Invalid expiration date format!';
+    end if;
+    if not new.cvc regexp '^\\d{3}$' then
+        signal sqlstate '45000'
+            set message_text = 'Invalid CVC!';
+    end if;
+    if not new.card_number regexp '^\\d{4} ?\\d{4} ?\\d{4} ?\\d{4}$' then
+        signal sqlstate '45000'
+            set message_text = 'Invalid card number!';
+    end if;
+    set new.card_number = replace(new.card_number, ' ', '');
+end$$
+delimiter ;
+

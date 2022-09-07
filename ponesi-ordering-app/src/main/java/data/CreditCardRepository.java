@@ -52,4 +52,23 @@ public class CreditCardRepository extends PossessiveRepository {
         this.returnConnection(conn);
         return result;
     }
+
+    public boolean createCard(CreditCard cc) throws SQLException {
+        var conn = this.getConnection();
+        //                                      1       2           3       4       5         6        7
+        var query = "insert into credit_card (name, card_number, exp_date, cvc, country_id, label, user_id) " +
+                "values (?, ?, ?, ?, ?, ?, ?)";
+        try (var ps = conn.prepareStatement(query)) {
+            ps.setString(1, cc.getName());
+            ps.setString(2, cc.getNumber());
+            ps.setString(3, cc.getExp());
+            ps.setString(4, cc.getCvc());
+            ps.setInt(5, cc.getCountry().getId());
+            ps.setString(6, cc.getLabel());
+            ps.setInt(7, cc.getUser().getId());
+            ps.executeUpdate();
+        }
+        this.returnConnection(conn);
+        return true;
+    }
 }

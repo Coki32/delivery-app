@@ -5,6 +5,7 @@ import components.ItemSquare;
 import controllers.MainController;
 import controllers.OrderController;
 import forms.AddCreditCard;
+import forms.PopularItemsPopup;
 import forms.UserCreate;
 
 import javax.swing.*;
@@ -105,13 +106,20 @@ public class Main extends JFrame {
         });
 
         JMenuItem creditCardAdd = new JMenuItem("Add users credit card");
-        userAdd.setAccelerator(KeyStroke.getKeyStroke('M', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        userAdd.addActionListener(e -> {
+        creditCardAdd.setAccelerator(KeyStroke.getKeyStroke('M', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        creditCardAdd.addActionListener(e -> {
             new AddCreditCard();
+        });
+
+        JMenuItem popularItems = new JMenuItem("Show popular items");
+        popularItems.setAccelerator(KeyStroke.getKeyStroke('P', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        popularItems.addActionListener(e -> {
+            new PopularItemsPopup();
         });
 
         file.add(quitItem);
         file.add(refreshItem);
+        file.add(popularItems);
 
         users.add(userAdd);
         users.add(creditCardAdd);
