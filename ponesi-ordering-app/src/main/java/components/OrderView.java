@@ -56,11 +56,11 @@ public class OrderView extends JPanel {
             this.validate();
         });
         do {
-            System.out.println("Bio:" + currentStatus.getStatus());
+
             var prev = currentStatus;
             Thread.sleep(PERIOD);
             currentStatus = OrderRepository.getInstance().getOrderStatus(order);
-            System.out.println("Postao:" + currentStatus.getStatus());
+
             if (prev != currentStatus) {
                 final String newStat = currentStatus.getStatus();
                 SwingUtilities.invokeLater(() -> {

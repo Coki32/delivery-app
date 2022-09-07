@@ -41,12 +41,14 @@ public class CreditCardRepository extends PossessiveRepository {
         try (var ps = conn.prepareStatement(query)) {
             ps.setInt(1, u.getId());
             try (var rs = ps.executeQuery()) {
-                result.add(
-                        new CreditCard(
-                                rs.getInt("cid"), rs.getString("cname"), rs.getString("cnum"),
-                                rs.getString("cexp"), rs.getString("ccvc"),
-                                new Country(rs.getInt("country_id"), rs.getString("country_sh"), rs.getString("country_full")),
-                                rs.getString("clbl"), u));
+                while (rs.next()) {
+                    result.add(
+                            new CreditCard(
+                                    rs.getInt("cid"), rs.getString("cname"), rs.getString("cnum"),
+                                    rs.getString("cexp"), rs.getString("ccvc"),
+                                    new Country(rs.getInt("country_id"), rs.getString("country_sh"), rs.getString("country_full")),
+                                    rs.getString("clbl"), u));
+                }
             }
         }
         this.returnConnection(conn);
